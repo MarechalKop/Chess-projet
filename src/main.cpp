@@ -1,9 +1,12 @@
 #include <imgui.h>
-#include <iostream>
+#include "board.hpp"
+#include "chess_renderer.hpp"
 #include "quick_imgui/quick_imgui.hpp"
-#include "chess_ui.hpp" // Inclusion de ton fichier
 
-int main() {
+int main()
+{
+    Board chessBoard;
+
     float value{0.f};
 
     quick_imgui::loop(
@@ -11,8 +14,8 @@ int main() {
         /* init: */ [&]() {},
         /* loop: */
         [&]() {
-            ImGui::ShowDemoWindow(); // Fenêtre de démonstration ImGui
-            renderChessBoard(); // Appelle la fonction qui affiche l'échiquier
+            ImGui::ShowDemoWindow();      // Fenêtre de démonstration ImGui
+            renderChessBoard(chessBoard); // Appelle la fonction qui affiche l'échiquier
         }
     );
 

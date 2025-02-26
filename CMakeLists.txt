@@ -38,7 +38,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 # Add all the source files
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS src/*)
 target_sources(${PROJECT_NAME} PRIVATE ${MY_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE src)
+target_include_directories(${PROJECT_NAME} PRIVATE include src)
 
 # Add quick-imgui library
 add_subdirectory(lib/quick_imgui)
