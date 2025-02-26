@@ -82,7 +82,7 @@ void renderChessBoard(Board& chessBoard)
                     ImVec2 center  = {tilePos.x + tileSize / 2, tilePos.y + tileSize / 2};
 
                     // Dessiner un cercle sur les cases accessibles
-                    ImGui::GetWindowDrawList()->AddCircle(center, tileSize / 4, ImGui::ColorConvertFloat4ToU32(highlightColor), 12, 3.0f);
+                    ImGui::GetWindowDrawList()->AddCircle(center, tileSize / 4, ImGui::ColorConvertFloat4ToU32(validTileColor), 12, 3.0f);
                 }
             }
 

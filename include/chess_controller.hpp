@@ -8,8 +8,10 @@ struct SelectedPiece {
     bool isSelected = false;
 };
 
+extern bool isWhiteTurn; // Les blancs commencent toujours
+
 void                             selectPiece(Board& board, SelectedPiece& selected, int row, int col);
-void                             movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol);
+bool                             movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol);
 void                             deselectPiece(SelectedPiece& selected);
 std::vector<std::pair<int, int>> getValidMovesForSelected(const Board& board, const SelectedPiece& selectedPiece);
 
