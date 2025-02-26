@@ -36,3 +36,14 @@ void deselectPiece(SelectedPiece& selected)
     selected.row        = -1;
     selected.col        = -1;
 }
+
+std::vector<std::pair<int, int>> getValidMovesForSelected(const Board& board, const SelectedPiece& selectedPiece)
+{
+    if (!selectedPiece.isSelected)
+    {
+        return {};
+    }
+
+    const Piece& piece = board.getBoard()[selectedPiece.row][selectedPiece.col];
+    return getValidMoves(piece, selectedPiece.row, selectedPiece.col, board.getBoard());
+}

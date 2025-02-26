@@ -8,7 +8,8 @@ class Board {
 public:
     Board(); // Constructeur pour initialiser le plateau
 
-    std::vector<std::vector<Piece>>& getBoard(); // Accès au plateau
+    std::vector<std::vector<Piece>>&       getBoard();
+    const std::vector<std::vector<Piece>>& getBoard() const; // Accès au plateau
 
 private:
     std::vector<std::vector<Piece>> board; // Stocke l'état des pièces

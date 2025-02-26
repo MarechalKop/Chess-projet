@@ -4,6 +4,7 @@
 #include "chess_controller.hpp"
 #include "game_state.hpp"
 #include "imgui.h"
+#include "moves.hpp"
 
 static SelectedPiece selectedPiece;
 
@@ -20,6 +21,7 @@ void renderChessBoard(Board& chessBoard)
     ImVec4 darkTileColor  = ImVec4{0.3f, 0.3f, 0.3f, 1.f};
     ImVec4 lightTileColor = ImVec4{0.8f, 0.8f, 0.8f, 1.f};
     ImVec4 highlightColor = ImVec4{1.0f, 1.0f, 0.0f, 0.5f};
+    ImVec4 validTileColor = ImVec4{0.0f, 1.0f, 0.0f, 0.5f};
 
     // Couleurs des pièces
     ImVec4 blackPieceColor = ImVec4{0.0f, 0.0f, 0.0f, 1.f};
@@ -66,6 +68,22 @@ void renderChessBoard(Board& chessBoard)
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
             {
                 deselectPiece(selectedPiece);
+            }
+
+            // Afficher les mouvements valides si une pièce est sélectionnée
+            if (selectedPiece.isSelected)
+            {
+                std::vector<std::pair<int, int>> validMoves = getValidMovesForSelected(chessBoard, selectedPiece);
+
+                for (const auto& move : validMoves)
+                {
+                    int    r = move.first, c = move.second;
+                    ImVec2 tilePos = {boardTopLeft.x + c * tileSize, boardTopLeft.y + r * tileSize};
+                    ImVec2 center  = {tilePos.x + tileSize / 2, tilePos.y + tileSize / 2};
+
+                    // Dessiner un cercle sur les cases accessibles
+                    ImGui::GetWindowDrawList()->AddCircle(center, tileSize / 4, ImGui::ColorConvertFloat4ToU32(highlightColor), 12, 3.0f);
+                }
             }
 
             // Afficher la pièce si présente

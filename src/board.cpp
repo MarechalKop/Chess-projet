@@ -19,3 +19,8 @@ std::vector<std::vector<Piece>>& Board::getBoard()
 {
     return board;
 }
+
+const std::vector<std::vector<Piece>>& Board::getBoard() const
+{
+    return board;
+}

@@ -1,6 +1,5 @@
 #include "moves.hpp"
 #include <cmath>
-#include <iostream>
 
 std::vector<std::pair<int, int>> getValidMoves(const Piece& piece, int row, int col, const std::vector<std::vector<Piece>>& board)
 {
