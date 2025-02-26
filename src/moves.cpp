@@ -46,5 +46,33 @@ bool isValidMove(const Piece& piece, int startRow, int startCol, int endRow, int
             return true;
     }
 
+    // Gestion des mouvements des tours
+    if (piece.type == "R") // "R" pour Rook (Tour)
+    {
+        // Déplacement en ligne droite (horizontal ou vertical)
+        if (startRow == endRow || startCol == endCol)
+        {
+            // Vérification qu'il n'y a pas d'obstacles sur le chemin
+            int rowStep = (endRow - startRow) == 0 ? 0 : (endRow - startRow) / std::abs(endRow - startRow);
+            int colStep = (endCol - startCol) == 0 ? 0 : (endCol - startCol) / std::abs(endCol - startCol);
+
+            int row = startRow + rowStep;
+            int col = startCol + colStep;
+
+            while (row != endRow || col != endCol)
+            {
+                if (!board[row][col].type.empty()) // Une pièce bloque le passage
+                    return false;
+
+                row += rowStep;
+                col += colStep;
+            }
+
+            // Vérifie si la case d'arrivée est vide ou contient une pièce adverse
+            if (board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite)
+                return true;
+        }
+    }
+
     return false; // Mouvement invalide par défaut
 }
