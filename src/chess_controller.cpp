@@ -1,4 +1,5 @@
 #include "chess_controller.hpp"
+#include "moves.hpp"
 
 void selectPiece(Board& board, SelectedPiece& selected, int row, int col)
 {
@@ -15,14 +16,17 @@ void movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol)
 {
     if (selected.isSelected)
     {
-        // Déplacer la pièce sélectionnée vers la nouvelle case
-        board.getBoard()[newRow][newCol]             = board.getBoard()[selected.row][selected.col];
-        board.getBoard()[selected.row][selected.col] = {"", false}; // Vider l'ancienne case
+        Piece& piece = board.getBoard()[selected.row][selected.col];
 
-        // Réinitialiser la sélection
-        selected.isSelected = false;
-        selected.row        = -1;
-        selected.col        = -1;
+        if (isValidMove(piece, selected.row, selected.col, newRow, newCol, board.getBoard()))
+        {
+            // Déplacement de la pièce
+            board.getBoard()[newRow][newCol]             = piece;
+            board.getBoard()[selected.row][selected.col] = {"", false}; // Case vidée
+
+            // Désélectionner la pièce après le déplacement
+            selected.isSelected = false;
+        }
     }
 }
 
