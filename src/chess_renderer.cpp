@@ -1,8 +1,11 @@
 #include "chess_renderer.hpp"
 #include <vector>
 #include "board.hpp"
+#include "chess_controller.hpp"
 #include "game_state.hpp"
 #include "imgui.h"
+
+static SelectedPiece selectedPiece;
 
 void renderChessBoard(Board& chessBoard)
 {
@@ -16,6 +19,7 @@ void renderChessBoard(Board& chessBoard)
     // Couleurs des cases du damier
     ImVec4 darkTileColor  = ImVec4{0.3f, 0.3f, 0.3f, 1.f};
     ImVec4 lightTileColor = ImVec4{0.8f, 0.8f, 0.8f, 1.f};
+    ImVec4 highlightColor = ImVec4{1.0f, 1.0f, 0.0f, 0.5f};
 
     // Couleurs des pièces
     ImVec4 blackPieceColor = ImVec4{0.0f, 0.0f, 0.0f, 1.f};
@@ -32,8 +36,37 @@ void renderChessBoard(Board& chessBoard)
             ImVec2 tilePos   = ImVec2(boardTopLeft.x + col * tileSize, boardTopLeft.y + row * tileSize);
             ImVec4 tileColor = ((row + col) % 2 == 0) ? lightTileColor : darkTileColor;
 
+            // Si cette case est sélectionnée, la surligner
+            if (selectedPiece.isSelected && selectedPiece.row == row && selectedPiece.col == col)
+            {
+                tileColor = highlightColor;
+            }
+
             // Dessiner la case
             ImGui::GetWindowDrawList()->AddRectFilled(tilePos, ImVec2(tilePos.x + tileSize, tilePos.y + tileSize), ImGui::ColorConvertFloat4ToU32(tileColor));
+
+            // Vérifier si la case est cliquée
+            ImVec2 mousePos = ImGui::GetMousePos();
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            {
+                if (mousePos.x > tilePos.x && mousePos.x < tilePos.x + tileSize && mousePos.y > tilePos.y && mousePos.y < tilePos.y + tileSize)
+                {
+                    if (selectedPiece.isSelected)
+                    {
+                        movePiece(chessBoard, selectedPiece, row, col); // Déplacer la pièce
+                    }
+                    else
+                    {
+                        selectPiece(chessBoard, selectedPiece, row, col); // Sélectionner une pièce
+                    }
+                }
+            }
+
+            // Désélectionner avec un clic droit
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+            {
+                deselectPiece(selectedPiece);
+            }
 
             // Afficher la pièce si présente
             if (!board[row][col].type.empty())
