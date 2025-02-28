@@ -1,5 +1,6 @@
 #include "moves.hpp"
 #include <cmath>
+#include <iostream> // Ajout pour le debug
 
 std::vector<std::pair<int, int>> getValidMoves(const Piece& piece, int row, int col, const std::vector<std::vector<Piece>>& board)
 {
@@ -52,27 +53,116 @@ bool isValidMove(const Piece& piece, int startRow, int startCol, int endRow, int
         // Déplacement en ligne droite (horizontal ou vertical)
         if (startRow == endRow || startCol == endCol)
         {
-            // Vérification qu'il n'y a pas d'obstacles sur le chemin
-            int rowStep = (endRow - startRow) == 0 ? 0 : (endRow - startRow) / std::abs(endRow - startRow);
-            int colStep = (endCol - startCol) == 0 ? 0 : (endCol - startCol) / std::abs(endCol - startCol);
+            int rowStep = (endRow == startRow) ? 0 : (endRow > startRow ? 1 : -1);
+            int colStep = (endCol == startCol) ? 0 : (endCol > startCol ? 1 : -1);
 
             int row = startRow + rowStep;
             int col = startCol + colStep;
 
             while (row != endRow || col != endCol)
             {
-                if (!board[row][col].type.empty()) // Une pièce bloque le passage
+                if (!board[row][col].type.empty())
                     return false;
-
                 row += rowStep;
                 col += colStep;
             }
-
-            // Vérifie si la case d'arrivée est vide ou contient une pièce adverse
-            if (board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite)
-                return true;
+            return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
         }
     }
+
+    // Gestion des mouvements des fous
+    if (piece.type == "B") // "B" pour Bishop (Fou)
+    {
+        // Vérification du déplacement en diagonale
+        if (std::abs(startRow - endRow) == std::abs(startCol - endCol) && startRow != endRow && startCol != endCol)
+        {
+            int rowStep = (endRow > startRow) ? 1 : -1;
+            int colStep = (endCol > startCol) ? 1 : -1;
+
+            int row = startRow + rowStep;
+            int col = startCol + colStep;
+
+            while (row != endRow && col != endCol)
+            {
+                if (row < 0 || row >= 8 || col < 0 || col >= 8) // Sécurité contre les indices hors limites
+                    return false;
+                if (!board[row][col].type.empty())
+                    return false;
+                row += rowStep;
+                col += colStep;
+            }
+            return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
+        }
+    }
+
+    // Gestion des mouvements du cavalier
+    if (piece.type == "Kn") // "N" pour Knight (Cavalier)
+    {
+        int knightMoves[8][2] = {{-2, -1}, {-2, 1}, {2, -1}, {2, 1},
+                                 {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
+
+        for (auto& move : knightMoves)
+        {
+            if (startRow + move[0] == endRow && startCol + move[1] == endCol)
+            {
+                return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
+            }
+        }
+    }
+
+    // Gestion des mouvements du roi
+if (piece.type == "K") // "K" pour King (Roi)
+{
+    // Le roi peut se déplacer d'une case dans toutes les directions
+    if (std::abs(startRow - endRow) <= 1 && std::abs(startCol - endCol) <= 1)
+    {
+        return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
+    }
+}
+
+// Gestion des mouvements de la reine
+if (piece.type == "Q") // "Q" pour Queen (Reine)
+{
+    // La reine se déplace en ligne droite (horizontalement ou verticalement)
+    if (startRow == endRow || startCol == endCol)
+    {
+        int rowStep = (endRow == startRow) ? 0 : (endRow > startRow ? 1 : -1);
+        int colStep = (endCol == startCol) ? 0 : (endCol > startCol ? 1 : -1);
+
+        int row = startRow + rowStep;
+        int col = startCol + colStep;
+
+        while (row != endRow || col != endCol)
+        {
+            if (!board[row][col].type.empty())
+                return false; // Bloqué par une pièce
+            row += rowStep;
+            col += colStep;
+        }
+        return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
+    }
+
+    // La reine se déplace aussi en diagonale (comme un fou)
+    if (std::abs(startRow - endRow) == std::abs(startCol - endCol))
+    {
+        int rowStep = (endRow > startRow) ? 1 : -1;
+        int colStep = (endCol > startCol) ? 1 : -1;
+
+        int row = startRow + rowStep;
+        int col = startCol + colStep;
+
+        while (row != endRow && col != endCol)
+        {
+            if (row < 0 || row >= 8 || col < 0 || col >= 8) // Sécurité contre les indices hors limites
+                return false;
+            if (!board[row][col].type.empty())
+                return false; // Bloqué par une pièce
+            row += rowStep;
+            col += colStep;
+        }
+        return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
+    }
+}
 
     return false; // Mouvement invalide par défaut
 }
