@@ -103,5 +103,8 @@ void renderChessBoard(Board& chessBoard)
         }
     }
 
+// Gérer la promotion du pion après un déplacement
+handlePawnPromotion(chessBoard);
+
     ImGui::End();
 }

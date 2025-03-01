@@ -14,5 +14,6 @@ void                             selectPiece(Board& board, SelectedPiece& select
 bool                             movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol);
 void                             deselectPiece(SelectedPiece& selected);
 std::vector<std::pair<int, int>> getValidMovesForSelected(const Board& board, const SelectedPiece& selectedPiece);
+void                             handlePawnPromotion(Board& board); // Ajout de la déclaration
 
 #endif // CHESS_CONTROLLER_HPP

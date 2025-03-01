@@ -1,5 +1,13 @@
 #include "chess_controller.hpp"
 #include "moves.hpp"
+#include "imgui.h" // Pour afficher une fenêtre modale
+
+struct PendingPromotion {
+    bool active = false;
+    int row;
+    int col;
+    bool isWhite;
+} pendingPromotion;
 
 bool isWhiteTurn = true;
 
@@ -19,6 +27,64 @@ void selectPiece(Board& board, SelectedPiece& selected, int row, int col)
         selected.isSelected = false; // Désélectionner si la pièce ne correspond pas au tour
     }
 }
+
+// Fonction pour vérifier si un pion atteint la dernière rangée
+void checkForPawnPromotion(Board& board, int row, int col)
+{
+    Piece& piece = board.getBoard()[row][col];
+
+    if (piece.type == "P" && (row == 0 || row == 7)) // Si un pion atteint la dernière rangée
+    {
+        // Stocker les informations pour la promotion
+        pendingPromotion.active = true;
+        pendingPromotion.row = row;
+        pendingPromotion.col = col;
+        pendingPromotion.isWhite = piece.isWhite;
+
+        // Ouvrir la fenêtre modale
+        ImGui::OpenPopup("Promotion");
+    }
+}
+
+
+// Fonction pour gérer la promotion du pion
+void handlePawnPromotion(Board& board)
+{
+    if (pendingPromotion.active && ImGui::BeginPopupModal("Promotion", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Choisissez une pièce pour la promotion :");
+
+        Piece& piece = board.getBoard()[pendingPromotion.row][pendingPromotion.col];
+
+        if (ImGui::Button("Dame"))
+        {
+            piece.type = "Q";
+            pendingPromotion.active = false;
+            ImGui::CloseCurrentPopup();
+        }
+        if (ImGui::Button("Tour"))
+        {
+            piece.type = "R";
+            pendingPromotion.active = false;
+            ImGui::CloseCurrentPopup();
+        }
+        if (ImGui::Button("Fou"))
+        {
+            piece.type = "B";
+            pendingPromotion.active = false;
+            ImGui::CloseCurrentPopup();
+        }
+        if (ImGui::Button("Cavalier"))
+        {
+            piece.type = "Kn";
+            pendingPromotion.active = false;
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
 
 bool movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol)
 {
@@ -41,6 +107,9 @@ bool movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol)
 
         // Désélectionner la pièce après le déplacement
         selected.isSelected = false;
+
+        // Vérifier si un pion atteint la dernière rangée
+        checkForPawnPromotion(board, newRow, newCol);
 
         // Changer de tour
         isWhiteTurn = !isWhiteTurn;
