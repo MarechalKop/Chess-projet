@@ -4,7 +4,6 @@
 #include "chess_controller.hpp"
 #include "game_state.hpp"
 #include "imgui.h"
-#include "moves.hpp"
 
 static SelectedPiece selectedPiece;
 
@@ -103,8 +102,9 @@ void renderChessBoard(Board& chessBoard)
         }
     }
 
-// Gérer la promotion du pion après un déplacement
-handlePawnPromotion(chessBoard);
+    // Gérer la promotion du pion après un déplacement
+    handlePawnPromotion(chessBoard);
+    showVictoryPopup(chessBoard);
 
     ImGui::End();
 }

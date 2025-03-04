@@ -1,11 +1,12 @@
 #include "chess_controller.hpp"
+#include "game_state.hpp"
+#include "imgui.h"
 #include "moves.hpp"
-#include "imgui.h" // Pour afficher une fenêtre modale
 
 struct PendingPromotion {
     bool active = false;
-    int row;
-    int col;
+    int  row;
+    int  col;
     bool isWhite;
 } pendingPromotion;
 
@@ -36,16 +37,15 @@ void checkForPawnPromotion(Board& board, int row, int col)
     if (piece.type == "P" && (row == 0 || row == 7)) // Si un pion atteint la dernière rangée
     {
         // Stocker les informations pour la promotion
-        pendingPromotion.active = true;
-        pendingPromotion.row = row;
-        pendingPromotion.col = col;
+        pendingPromotion.active  = true;
+        pendingPromotion.row     = row;
+        pendingPromotion.col     = col;
         pendingPromotion.isWhite = piece.isWhite;
 
         // Ouvrir la fenêtre modale
         ImGui::OpenPopup("Promotion");
     }
 }
-
 
 // Fonction pour gérer la promotion du pion
 void handlePawnPromotion(Board& board)
@@ -58,25 +58,25 @@ void handlePawnPromotion(Board& board)
 
         if (ImGui::Button("Dame"))
         {
-            piece.type = "Q";
+            piece.type              = "Q";
             pendingPromotion.active = false;
             ImGui::CloseCurrentPopup();
         }
         if (ImGui::Button("Tour"))
         {
-            piece.type = "R";
+            piece.type              = "R";
             pendingPromotion.active = false;
             ImGui::CloseCurrentPopup();
         }
         if (ImGui::Button("Fou"))
         {
-            piece.type = "B";
+            piece.type              = "B";
             pendingPromotion.active = false;
             ImGui::CloseCurrentPopup();
         }
         if (ImGui::Button("Cavalier"))
         {
-            piece.type = "Kn";
+            piece.type              = "Kn";
             pendingPromotion.active = false;
             ImGui::CloseCurrentPopup();
         }
@@ -84,7 +84,6 @@ void handlePawnPromotion(Board& board)
         ImGui::EndPopup();
     }
 }
-
 
 bool movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol)
 {
@@ -101,6 +100,14 @@ bool movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol)
 
     if (isValidMove(piece, selected.row, selected.col, newRow, newCol, board.getBoard()))
     {
+        // Vérifier si on capture un roi
+        Piece& targetPiece = board.getBoard()[newRow][newCol];
+        if (targetPiece.type == "K")
+        {
+            gameState.gameOver = true;
+            gameState.winner   = piece.isWhite ? "Les Blancs gagnent !" : "Les Noirs gagnent !";
+        }
+
         // Déplacer la pièce
         board.getBoard()[newRow][newCol]             = piece;
         board.getBoard()[selected.row][selected.col] = {"", false}; // Case vidée
@@ -110,6 +117,10 @@ bool movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol)
 
         // Vérifier si un pion atteint la dernière rangée
         checkForPawnPromotion(board, newRow, newCol);
+
+        // Vérifier la victoire après le déplacement
+        if (!gameState.gameOver)
+            checkVictory(board, isWhiteTurn);
 
         // Changer de tour
         isWhiteTurn = !isWhiteTurn;
@@ -136,4 +147,11 @@ std::vector<std::pair<int, int>> getValidMovesForSelected(const Board& board, co
 
     const Piece& piece = board.getBoard()[selectedPiece.row][selectedPiece.col];
     return getValidMoves(piece, selectedPiece.row, selectedPiece.col, board.getBoard());
+}
+
+void resetGame(Board& board)
+{
+    board.resetBoard();
+    gameState.gameOver = false;
+    isWhiteTurn        = true; // Réinitialisation pour que ce soit toujours les Blancs qui commencent
 }

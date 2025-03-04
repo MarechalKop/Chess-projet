@@ -11,6 +11,8 @@ public:
     std::vector<std::vector<Piece>>&       getBoard();
     const std::vector<std::vector<Piece>>& getBoard() const; // Accès au plateau
 
+    void resetBoard();
+
 private:
     std::vector<std::vector<Piece>> board; // Stocke l'état des pièces
 };

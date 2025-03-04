@@ -15,5 +15,6 @@ bool                             movePiece(Board& board, SelectedPiece& selected
 void                             deselectPiece(SelectedPiece& selected);
 std::vector<std::pair<int, int>> getValidMovesForSelected(const Board& board, const SelectedPiece& selectedPiece);
 void                             handlePawnPromotion(Board& board); // Ajout de la déclaration
+void                             resetGame(Board& board);
 
 #endif // CHESS_CONTROLLER_HPP
