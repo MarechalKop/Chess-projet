@@ -2,16 +2,18 @@
 #include <cmath>
 #include <iostream> // Ajout pour le debug
 
-std::vector<std::pair<int, int>> getValidMoves(const Piece& piece, int row, int col, const std::vector<std::vector<Piece>>& board)
+LastMove lastMove;
+
+
+std::vector<std::pair<int, int>> getValidMoves(const Piece& piece, int row, int col, const std::vector<std::vector<Piece>>& board, const LastMove& lastMove)
 {
     std::vector<std::pair<int, int>> moves;
 
-    // Vérifier toutes les cases où la pièce peut aller
     for (int r = 0; r < 8; ++r)
     {
         for (int c = 0; c < 8; ++c)
         {
-            if (isValidMove(piece, row, col, r, c, board))
+            if (isValidMove(piece, row, col, r, c, board, lastMove))
             {
                 moves.emplace_back(r, c);
             }
@@ -20,7 +22,11 @@ std::vector<std::pair<int, int>> getValidMoves(const Piece& piece, int row, int 
     return moves;
 }
 
-bool isValidMove(const Piece& piece, int startRow, int startCol, int endRow, int endCol, const std::vector<std::vector<Piece>>& board)
+bool isValidMove(const Piece& piece, 
+    int startRow, int startCol, 
+    int endRow, int endCol, 
+    const std::vector<std::vector<Piece>>& board, 
+    const LastMove& lastMove)
 {
     // Vérifier que la case de destination est bien dans les limites du plateau
     if (endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8)
@@ -41,11 +47,24 @@ bool isValidMove(const Piece& piece, int startRow, int startCol, int endRow, int
             if ((piece.isWhite && startRow == 6) || (!piece.isWhite && startRow == 1))
                 return true;
         }
+        
+    if (abs(endCol - startCol) == 1 && endRow == startRow + direction && board[endRow][endCol].type.empty()) {
+        const Piece& adjacentPiece = board[startRow][endCol];
+        if (adjacentPiece.type == "P" && 
+            abs(lastMove.startRow - lastMove.endRow) == 2 &&
+            lastMove.endRow == startRow && lastMove.endCol == endCol &&
+            board[endRow][endCol].type.empty()) {
+            return true;
+    }
+}
 
         // Capture diagonale
         if (std::abs(startCol - endCol) == 1 && startRow + direction == endRow && !board[endRow][endCol].type.empty() && board[endRow][endCol].isWhite != piece.isWhite)
             return true;
     }
+
+
+    
 
     // Gestion des mouvements des tours
     if (piece.type == "R") // "R" pour Rook (Tour)
