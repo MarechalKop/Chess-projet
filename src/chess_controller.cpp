@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "moves.hpp"
 
+
 struct PendingPromotion {
     bool active = false;
     int  row;
@@ -87,48 +88,49 @@ void handlePawnPromotion(Board& board)
 
 bool movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol)
 {
+        // Ajouter ceci au début de la fonction movePiece
+for(auto& row : board.getBoard()) {
+    for(auto& p : row) {
+        if(p.type == "P") {
+            p.justMovedTwoSquares = false;
+        }
+    }
+}
+
     if (!selected.isSelected)
         return false;
 
     Piece& piece = board.getBoard()[selected.row][selected.col];
 
-    // Vérifier si c'est bien le tour du joueur
-    if ((piece.isWhite && !isWhiteTurn) || (!piece.isWhite && isWhiteTurn))
+    if (isValidMove(piece, selected.row, selected.col, newRow, newCol, board.getBoard(), lastMove))
     {
-        return false;
-    }
-
-    if (isValidMove(piece, selected.row, selected.col, newRow, newCol, board.getBoard()))
-    {
-        // Vérifier si on capture un roi
-        Piece& targetPiece = board.getBoard()[newRow][newCol];
-        if (targetPiece.type == "K")
+        // Gérer la prise en passant (effacer le pion adverse)
+        if (piece.type == "P" && abs(newCol - selected.col) == 1 && board.getBoard()[newRow][newCol].type.empty())
         {
-            gameState.gameOver = true;
-            gameState.winner   = piece.isWhite ? "Les Blancs gagnent !" : "Les Noirs gagnent !";
+            board.getBoard()[selected.row][newCol] = {"", false};
         }
 
-        // Déplacer la pièce
-        board.getBoard()[newRow][newCol]             = piece;
-        board.getBoard()[selected.row][selected.col] = {"", false}; // Case vidée
+        // Effectuer le déplacement
+        board.getBoard()[newRow][newCol] = piece;
+        board.getBoard()[selected.row][selected.col] = {"", false};
 
-        // Désélectionner la pièce après le déplacement
+        // Mettre à jour le dernier coup
+        lastMove = {selected.row, selected.col, newRow, newCol};
+
+        // Marquer le pion si déplacement de deux cases
+        if (piece.type == "P" && abs(newRow - selected.row) == 2)
+            board.getBoard()[newRow][newCol].justMovedTwoSquares = true;
+
         selected.isSelected = false;
-
-        // Vérifier si un pion atteint la dernière rangée
-        checkForPawnPromotion(board, newRow, newCol);
-
-        // Vérifier la victoire après le déplacement
-        if (!gameState.gameOver)
-            checkVictory(board, isWhiteTurn);
-
-        // Changer de tour
         isWhiteTurn = !isWhiteTurn;
 
-        return true; // Déplacement réussi
+        checkVictory(board, isWhiteTurn);
+        checkForPawnPromotion(board, newRow, newCol);
+
+        return true;
     }
 
-    return false; // Déplacement invalide
+    return false;
 }
 
 void deselectPiece(SelectedPiece& selected)
@@ -138,16 +140,16 @@ void deselectPiece(SelectedPiece& selected)
     selected.col        = -1;
 }
 
+// chess_controller.cpp
 std::vector<std::pair<int, int>> getValidMovesForSelected(const Board& board, const SelectedPiece& selectedPiece)
 {
     if (!selectedPiece.isSelected)
-    {
         return {};
-    }
 
     const Piece& piece = board.getBoard()[selectedPiece.row][selectedPiece.col];
-    return getValidMoves(piece, selectedPiece.row, selectedPiece.col, board.getBoard());
+    return getValidMoves(piece, selectedPiece.row, selectedPiece.col, board.getBoard(), lastMove);
 }
+
 
 void resetGame(Board& board)
 {

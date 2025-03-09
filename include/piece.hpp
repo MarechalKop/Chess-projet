@@ -1,11 +1,13 @@
+// piece.hpp
 #ifndef PIECE_HPP
 #define PIECE_HPP
 
 #include <string>
 
 struct Piece {
-    std::string type;    // Exemple : "P" pour pion, "R" pour tour, "K" pour roi, etc.
-    bool        isWhite; // true si la pièce est blanche, false si noire
+    std::string type;
+    bool        isWhite;
+    bool        justMovedTwoSquares = false; // <-- AJOUTER CECI
 };
 
 #endif // PIECE_HPP
