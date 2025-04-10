@@ -43,3 +43,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE include src)
 # Add quick-imgui library
 add_subdirectory(lib/quick_imgui)
 target_link_libraries(${PROJECT_NAME} PRIVATE quick_imgui::quick_imgui)
+
+# Add glm library
+include_directories(${CMAKE_SOURCE_DIR}/external/glm)

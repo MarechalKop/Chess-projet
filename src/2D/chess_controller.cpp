@@ -1,8 +1,7 @@
-#include "chess_controller.hpp"
-#include "game_state.hpp"
+#include "../include/2D/chess_controller.hpp"
+#include "../include/2D/game_state.hpp"
+#include "../include/2D/moves.hpp"
 #include "imgui.h"
-#include "moves.hpp"
-
 
 struct PendingPromotion {
     bool active = false;
@@ -88,14 +87,17 @@ void handlePawnPromotion(Board& board)
 
 bool movePiece(Board& board, SelectedPiece& selected, int newRow, int newCol)
 {
-        // Ajouter ceci au début de la fonction movePiece
-for(auto& row : board.getBoard()) {
-    for(auto& p : row) {
-        if(p.type == "P") {
-            p.justMovedTwoSquares = false;
+    // Ajouter ceci au début de la fonction movePiece
+    for (auto& row : board.getBoard())
+    {
+        for (auto& p : row)
+        {
+            if (p.type == "P")
+            {
+                p.justMovedTwoSquares = false;
+            }
         }
     }
-}
 
     if (!selected.isSelected)
         return false;
@@ -111,7 +113,7 @@ for(auto& row : board.getBoard()) {
         }
 
         // Effectuer le déplacement
-        board.getBoard()[newRow][newCol] = piece;
+        board.getBoard()[newRow][newCol]             = piece;
         board.getBoard()[selected.row][selected.col] = {"", false};
 
         // Mettre à jour le dernier coup
@@ -122,7 +124,7 @@ for(auto& row : board.getBoard()) {
             board.getBoard()[newRow][newCol].justMovedTwoSquares = true;
 
         selected.isSelected = false;
-        isWhiteTurn = !isWhiteTurn;
+        isWhiteTurn         = !isWhiteTurn;
 
         checkVictory(board, isWhiteTurn);
         checkForPawnPromotion(board, newRow, newCol);
@@ -149,7 +151,6 @@ std::vector<std::pair<int, int>> getValidMovesForSelected(const Board& board, co
     const Piece& piece = board.getBoard()[selectedPiece.row][selectedPiece.col];
     return getValidMoves(piece, selectedPiece.row, selectedPiece.col, board.getBoard(), lastMove);
 }
-
 
 void resetGame(Board& board)
 {
