@@ -1,9 +1,8 @@
-#include "moves.hpp"
+#include "../include/2D/moves.hpp"
 #include <cmath>
 #include <iostream> // Ajout pour le debug
 
 LastMove lastMove;
-
 
 std::vector<std::pair<int, int>> getValidMoves(const Piece& piece, int row, int col, const std::vector<std::vector<Piece>>& board, const LastMove& lastMove)
 {
@@ -22,11 +21,7 @@ std::vector<std::pair<int, int>> getValidMoves(const Piece& piece, int row, int 
     return moves;
 }
 
-bool isValidMove(const Piece& piece, 
-    int startRow, int startCol, 
-    int endRow, int endCol, 
-    const std::vector<std::vector<Piece>>& board, 
-    const LastMove& lastMove)
+bool isValidMove(const Piece& piece, int startRow, int startCol, int endRow, int endCol, const std::vector<std::vector<Piece>>& board, const LastMove& lastMove)
 {
     // Vérifier que la case de destination est bien dans les limites du plateau
     if (endRow < 0 || endRow >= 8 || endCol < 0 || endCol >= 8)
@@ -47,24 +42,20 @@ bool isValidMove(const Piece& piece,
             if ((piece.isWhite && startRow == 6) || (!piece.isWhite && startRow == 1))
                 return true;
         }
-        
-    if (abs(endCol - startCol) == 1 && endRow == startRow + direction && board[endRow][endCol].type.empty()) {
-        const Piece& adjacentPiece = board[startRow][endCol];
-        if (adjacentPiece.type == "P" && 
-            abs(lastMove.startRow - lastMove.endRow) == 2 &&
-            lastMove.endRow == startRow && lastMove.endCol == endCol &&
-            board[endRow][endCol].type.empty()) {
-            return true;
-    }
-}
+
+        if (abs(endCol - startCol) == 1 && endRow == startRow + direction && board[endRow][endCol].type.empty())
+        {
+            const Piece& adjacentPiece = board[startRow][endCol];
+            if (adjacentPiece.type == "P" && abs(lastMove.startRow - lastMove.endRow) == 2 && lastMove.endRow == startRow && lastMove.endCol == endCol && board[endRow][endCol].type.empty())
+            {
+                return true;
+            }
+        }
 
         // Capture diagonale
         if (std::abs(startCol - endCol) == 1 && startRow + direction == endRow && !board[endRow][endCol].type.empty() && board[endRow][endCol].isWhite != piece.isWhite)
             return true;
     }
-
-
-    
 
     // Gestion des mouvements des tours
     if (piece.type == "R") // "R" pour Rook (Tour)
@@ -117,8 +108,7 @@ bool isValidMove(const Piece& piece,
     // Gestion des mouvements du cavalier
     if (piece.type == "Kn") // "N" pour Knight (Cavalier)
     {
-        int knightMoves[8][2] = {{-2, -1}, {-2, 1}, {2, -1}, {2, 1},
-                                 {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
+        int knightMoves[8][2] = {{-2, -1}, {-2, 1}, {2, -1}, {2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
 
         for (auto& move : knightMoves)
         {
@@ -130,58 +120,58 @@ bool isValidMove(const Piece& piece,
     }
 
     // Gestion des mouvements du roi
-if (piece.type == "K") // "K" pour King (Roi)
-{
-    // Le roi peut se déplacer d'une case dans toutes les directions
-    if (std::abs(startRow - endRow) <= 1 && std::abs(startCol - endCol) <= 1)
+    if (piece.type == "K") // "K" pour King (Roi)
     {
-        return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
-    }
-}
-
-// Gestion des mouvements de la reine
-if (piece.type == "Q") // "Q" pour Queen (Reine)
-{
-    // La reine se déplace en ligne droite (horizontalement ou verticalement)
-    if (startRow == endRow || startCol == endCol)
-    {
-        int rowStep = (endRow == startRow) ? 0 : (endRow > startRow ? 1 : -1);
-        int colStep = (endCol == startCol) ? 0 : (endCol > startCol ? 1 : -1);
-
-        int row = startRow + rowStep;
-        int col = startCol + colStep;
-
-        while (row != endRow || col != endCol)
+        // Le roi peut se déplacer d'une case dans toutes les directions
+        if (std::abs(startRow - endRow) <= 1 && std::abs(startCol - endCol) <= 1)
         {
-            if (!board[row][col].type.empty())
-                return false; // Bloqué par une pièce
-            row += rowStep;
-            col += colStep;
+            return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
         }
-        return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
     }
 
-    // La reine se déplace aussi en diagonale (comme un fou)
-    if (std::abs(startRow - endRow) == std::abs(startCol - endCol))
+    // Gestion des mouvements de la reine
+    if (piece.type == "Q") // "Q" pour Queen (Reine)
     {
-        int rowStep = (endRow > startRow) ? 1 : -1;
-        int colStep = (endCol > startCol) ? 1 : -1;
-
-        int row = startRow + rowStep;
-        int col = startCol + colStep;
-
-        while (row != endRow && col != endCol)
+        // La reine se déplace en ligne droite (horizontalement ou verticalement)
+        if (startRow == endRow || startCol == endCol)
         {
-            if (row < 0 || row >= 8 || col < 0 || col >= 8) // Sécurité contre les indices hors limites
-                return false;
-            if (!board[row][col].type.empty())
-                return false; // Bloqué par une pièce
-            row += rowStep;
-            col += colStep;
+            int rowStep = (endRow == startRow) ? 0 : (endRow > startRow ? 1 : -1);
+            int colStep = (endCol == startCol) ? 0 : (endCol > startCol ? 1 : -1);
+
+            int row = startRow + rowStep;
+            int col = startCol + colStep;
+
+            while (row != endRow || col != endCol)
+            {
+                if (!board[row][col].type.empty())
+                    return false; // Bloqué par une pièce
+                row += rowStep;
+                col += colStep;
+            }
+            return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
         }
-        return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
+
+        // La reine se déplace aussi en diagonale (comme un fou)
+        if (std::abs(startRow - endRow) == std::abs(startCol - endCol))
+        {
+            int rowStep = (endRow > startRow) ? 1 : -1;
+            int colStep = (endCol > startCol) ? 1 : -1;
+
+            int row = startRow + rowStep;
+            int col = startCol + colStep;
+
+            while (row != endRow && col != endCol)
+            {
+                if (row < 0 || row >= 8 || col < 0 || col >= 8) // Sécurité contre les indices hors limites
+                    return false;
+                if (!board[row][col].type.empty())
+                    return false; // Bloqué par une pièce
+                row += rowStep;
+                col += colStep;
+            }
+            return board[endRow][endCol].type.empty() || board[endRow][endCol].isWhite != piece.isWhite;
+        }
     }
-}
 
     return false; // Mouvement invalide par défaut
 }

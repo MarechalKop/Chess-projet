@@ -1,7 +1,6 @@
-#include "game_state.hpp"
+#include "../include/2D/game_state.hpp"
 #include <iostream>
-#include "chess_controller.hpp"
-
+#include "../include/2D/chess_controller.hpp"
 
 // Déclaration de l'instance globale de l'état du jeu
 GameState gameState;

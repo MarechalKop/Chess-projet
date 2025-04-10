@@ -1,4 +1,4 @@
-#include "board.hpp"
+#include "../include/2D/board.hpp"
 
 Board::Board()
 {

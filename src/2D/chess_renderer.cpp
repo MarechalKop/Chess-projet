@@ -1,8 +1,8 @@
-#include "chess_renderer.hpp"
+#include "../include/2D/chess_renderer.hpp"
 #include <vector>
-#include "board.hpp"
-#include "chess_controller.hpp"
-#include "game_state.hpp"
+#include "../include/2D/board.hpp"
+#include "../include/2D/chess_controller.hpp"
+#include "../include/2D/game_state.hpp"
 #include "imgui.h"
 
 static SelectedPiece selectedPiece;
